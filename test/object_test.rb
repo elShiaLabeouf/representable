@@ -126,10 +126,13 @@ class ObjectPublicMethodsTest < Minitest::Spec
   it do
     represented_array = AlbumRepresenter.for_collection.new(albums).to_object(wrap: wrapper)
     represented_object = AlbumRepresenter.new(album).to_object(wrap: second_wrapper)
-    _(represented_array[0].respond_to?(wrapper)).must_equal true
-    _(represented_array[0].send(wrapper).songs[0].name).must_equal albums[0].songs[0].name
 
-    _(represented_array[0].class.object_id).must_equal represented_array[1].class.object_id # wrapper struct class is the same for collection
-    _(represented_array[0].class.object_id).wont_equal represented_object.class.object_id   # wrapper structs classes are different for different wrappers
+    _(represented_array.respond_to?(wrapper)).must_equal true
+
+    _(represented_array.send(wrapper)[0].respond_to?(wrapper)).must_equal true
+    _(represented_array.send(wrapper)[0].send(wrapper).songs[0].title).must_equal albums[0].songs[0].title.upcase
+
+    _(represented_array.send(wrapper)[0].class.object_id).must_equal represented_array.send(wrapper)[1].class.object_id # wrapper struct class is the same for collection
+    _(represented_array.send(wrapper)[0].class.object_id).wont_equal represented_object.class.object_id   # wrapper structs classes are different for different wrappers
   end
 end
