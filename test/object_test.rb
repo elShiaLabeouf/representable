@@ -24,17 +24,17 @@ class ObjectTest < MiniTest::Spec
   it do
     representer.prepare(target).from_object(source)
 
-    _(target.title).must_equal "The King Is Dead"
-    _(target.album.name).must_equal "RUINER"
-    _(target.album.songs[0].title).must_equal "IN VINO VERITAS II"
+    assert_equal target.title, "The King Is Dead"
+    assert_equal target.album.name, "RUINER"
+    assert_equal target.album.songs[0].title, "IN VINO VERITAS II"
   end
 
   # ignore nested object when nil
   it do
     representer.prepare(Song.new("The King Is Dead")).from_object(Song.new)
 
-    _(target.title).must_be_nil # scalar property gets overridden when nil.
-    _(target.album).must_be_nil # nested property stays nil.
+    assert_nil target.title # scalar property gets overridden when nil.
+    assert_nil target.album # nested property stays nil.
   end
 
   # to_object
@@ -79,30 +79,30 @@ class ObjectPublicMethodsTest < Minitest::Spec
   let(:cover_png) { "example.com/cover.png" }
   it do
     represented = AlbumRepresenter.new(album).to_object(cover_png: cover_png)
-    _(represented.id).must_equal album.id
-    _(represented.name).wont_equal album.name
-    _(represented.name).must_equal album.name.lstrip.strip
-    _(represented.songs[0].title).wont_equal album.songs[0].title
-    _(represented.songs[0].title).must_equal album.songs[0].title.upcase
+    assert_equal represented.id, album.id
+    refute_equal represented.name, album.name
+    assert_equal represented.name, album.name.lstrip.strip
+    refute_equal represented.songs[0].title, album.songs[0].title
+    assert_equal represented.songs[0].title, album.songs[0].title.upcase
 
-    _(album.respond_to?(:free_concert_ticket_promo_code)).must_equal true
-    _(represented.respond_to?(:free_concert_ticket_promo_code)).must_equal false
+    assert_respond_to album, :free_concert_ticket_promo_code
+    refute_respond_to represented, :free_concert_ticket_promo_code
 
-    _(represented.cover_png).must_equal cover_png
+    assert_equal represented.cover_png, cover_png
   end
 
   it do
     represented = AlbumRepresenter.new(album).to_object(cover_png: cover_png)
-    _(represented.id).must_equal album.id
-    _(represented.name).wont_equal album.name
-    _(represented.name).must_equal album.name.lstrip.strip
-    _(represented.songs[0].title).wont_equal album.songs[0].title
-    _(represented.songs[0].title).must_equal album.songs[0].title.upcase
+    assert_equal represented.id, album.id
+    refute_equal represented.name, album.name
+    assert_equal represented.name, album.name.lstrip.strip
+    refute_equal represented.songs[0].title, album.songs[0].title
+    assert_equal represented.songs[0].title, album.songs[0].title.upcase
 
-    _(album.respond_to?(:free_concert_ticket_promo_code)).must_equal true
-    _(represented.respond_to?(:free_concert_ticket_promo_code)).must_equal false
+    assert_respond_to album, :free_concert_ticket_promo_code
+    refute_respond_to represented, :free_concert_ticket_promo_code
 
-    _(represented.cover_png).must_equal cover_png
+    assert_equal represented.cover_png, cover_png
   end
 
   let(:albums) do  [
@@ -114,11 +114,11 @@ class ObjectPublicMethodsTest < Minitest::Spec
 
   it do
     represented = AlbumRepresenter.for_collection.new(albums).to_object(cover_png: cover_png)
-    _(represented.size).must_equal albums.size
-    _(albums[0].respond_to?(:free_concert_ticket_promo_code)).must_equal true
-    _(represented[0].respond_to?(:free_concert_ticket_promo_code)).must_equal false
-    _(represented[0].cover_png).must_equal cover_png
-    _(represented[0].class.object_id).must_equal represented[1].class.object_id
+    assert_equal represented.size, albums.size
+    assert_respond_to albums[0], :free_concert_ticket_promo_code
+    refute_respond_to represented[0], :free_concert_ticket_promo_code
+    assert_equal represented[0].cover_png, cover_png
+    assert_equal represented[0].class.object_id, represented[1].class.object_id
   end
 
   let(:wrapper) { "cool_album" }
@@ -127,12 +127,14 @@ class ObjectPublicMethodsTest < Minitest::Spec
     represented_array = AlbumRepresenter.for_collection.new(albums).to_object(wrap: wrapper)
     represented_object = AlbumRepresenter.new(album).to_object(wrap: second_wrapper)
 
-    _(represented_array.respond_to?(wrapper)).must_equal true
+    assert_respond_to represented_array, wrapper
 
-    _(represented_array.send(wrapper)[0].respond_to?(wrapper)).must_equal true
-    _(represented_array.send(wrapper)[0].send(wrapper).songs[0].title).must_equal albums[0].songs[0].title.upcase
+    assert_respond_to represented_array.send(wrapper)[0], wrapper
+    first_song_title_represented = represented_array.send(wrapper)[0].send(wrapper).songs[0].title
+    first_song_title_original = albums[0].songs[0].title
+    assert_equal first_song_title_represented, first_song_title_original.upcase
 
-    _(represented_array.send(wrapper)[0].class.object_id).must_equal represented_array.send(wrapper)[1].class.object_id # wrapper struct class is the same for collection
-    _(represented_array.send(wrapper)[0].class.object_id).wont_equal represented_object.class.object_id   # wrapper structs classes are different for different wrappers
+    assert_equal represented_array.send(wrapper)[0].class.object_id, represented_array.send(wrapper)[1].class.object_id # wrapper struct class is the same for collection
+    refute_equal represented_array.send(wrapper)[0].class.object_id, represented_object.class.object_id   # wrapper structs classes are different for different wrappers
   end
 end
