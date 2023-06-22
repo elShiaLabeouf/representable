@@ -35,7 +35,6 @@ module Representable
 
     def to_hash(options={}, binding_builder=Binding)
       hash = create_representation_with({}, options, binding_builder)
-
       return hash if options[:wrap] == false
       return hash unless (wrap = options[:wrap] || representation_wrap(options))
 
