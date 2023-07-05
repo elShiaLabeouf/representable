@@ -1,34 +1,29 @@
 require 'representable/binding'
 
 module Representable
-  module Object
+  module Struct
     class Binding < Representable::Binding
-      def self.build_for(definition)  # TODO: remove default arg.
+      def self.build_for(definition)
         return Collection.new(definition)  if definition.array?
 
         new(definition)
       end
 
-      def read(hash, as)
-        fragment = hash.send(as) # :getter? no, that's for parsing!
+      def read(struct, as)
+        fragment = struct.send(as) # :getter? no, that's for parsing!
 
         return FragmentNotFound if fragment.nil? and typed?
 
         fragment
       end
 
-      def write(hash, fragment, as)
-        true
-      end
-
-      def deserialize_method
-        :from_object
+      def write(struct, fragment, as)
+        struct.send("#{as}=", fragment)
       end
 
       def serialize_method
-        :to_object
+        :to_struct
       end
-
 
       class Collection < self
         include Representable::Binding::Collection

@@ -1,12 +1,12 @@
 require 'representable/hash'
 
-module Representable::Object
+module Representable::Struct
   module Collection
-    include Representable::Object
+    include Representable::Struct
 
     def self.included(base)
       base.class_eval do
-        include Representable::Object
+        include Representable::Struct
         extend ClassMethods
         property(:_self, {:collection => true})
       end

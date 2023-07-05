@@ -139,7 +139,7 @@ To use a specific format, include the corresponding module in your representer a
 - `Representable::JSON#to_json`
 - `Representable::JSON#to_hash` (provides a hash instead of string)
 - `Representable::Hash#to_hash`
-- `Representable::Object#to_object` (provides a Struct-based object)
+- `Representable::Struct#to_struct` (provides a Struct-based object)
 - `Representable::XML#to_xml`
 - `Representable::YAML#to_yaml`
 
